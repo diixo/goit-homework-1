@@ -56,7 +56,8 @@ def parse_folder(root, ipath = ""):
         elif i.is_file():
             pathFile = Path(absPath + i.name)
             cat, success = getCategory(pathFile)  #(string, Bool)
-            # if success: # for any category:
+            # if success:
+            # # for any category:
             newName = normalize(pathFile.stem)
             #print(newName)
 
