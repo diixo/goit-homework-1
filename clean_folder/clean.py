@@ -7,7 +7,6 @@ import sys
 import uuid
 from pathlib import Path
 
-
 ##########################################################
 img_f = {'.jpeg', '.png', '.jpg', '.svg', ".bmp"}
 mov_f = {'.avi', '.mp4', '.mov', '.mkv', ".webm", ".wmv", ".flv"}
@@ -50,8 +49,6 @@ def parse_folder(root, ipath = ""):
     path = Path(absPath)
     absPath += "/"
 
-    #print("-->>" + absPath)
-
     for i in path.iterdir():
         if i.is_dir():
             folders.append(i.name)
@@ -60,17 +57,15 @@ def parse_folder(root, ipath = ""):
         elif i.is_file():
             pathFile = Path(absPath + i.name)
             cat, success = getCategory(pathFile)  #(string, Bool)
-            # if success:
-            # for any category:
+            # if success: # for any category:
             newName = normalize(pathFile.stem)
+            #print(newName)
 
             # prepare target folder for category
             targetDir = Path(root + "/" + cat)
             #print(targetDir.absolute())
             if not targetDir.exists():
                 targetDir.mkdir()
-
-            #print(newName)
 
             targetFile = Path(root + "/" + cat + "/" + newName + pathFile.suffix)
             if not targetFile.exists():
@@ -100,14 +95,12 @@ def parse_folder(root, ipath = ""):
     return empties
 
 #############################################################
-
 def printStatistic(rootStr):
     global CATEGORIES
     cat_amount = dict() # cat_amount[category] = files-count
 
     # try to traverse each directory-category:
     for cat, exts in CATEGORIES.items():
-
         dirCat = Path(rootStr + "/" + cat)
 
         if dirCat.exists():
@@ -140,7 +133,6 @@ def main():
         return f"Folder with path {root} dos`n exists."
 
     parse_folder(root)
-
     printStatistic(root)
 
     return "All Ok"
