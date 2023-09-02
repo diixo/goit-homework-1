@@ -7,3 +7,10 @@ build/
 *eggs*
 *idea
 *.utf8
+
+images/
+video/
+documents/
+audio/
+archives/
+others/

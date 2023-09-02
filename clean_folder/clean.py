@@ -38,11 +38,11 @@ def normalize(name):
     rename = re.sub(r'[^a-zA-Z0-9 -]', "_", rename)
     return rename
 ###########################################################
-def parse_folder(root, ipath = ""):
+def parse_folder(root, ipath = None):
     if not Path(root).exists(): return False
 
     # check if current directory is root.
-    absPath = root if ipath == "" else ipath
+    absPath = root if ipath == None else ipath
 
     folders = []
     path = Path(absPath)
@@ -50,8 +50,12 @@ def parse_folder(root, ipath = ""):
 
     for i in path.iterdir():
         if i.is_dir():
-            folders.append(i.name)
-            empties = False
+            if ipath == None:
+                if i.name.lower() in CATEGORIES.keys():
+                    continue
+            else:
+                folders.append(i.name)
+                empties = False
         
         elif i.is_file():
             pathFile = Path(absPath + i.name)
@@ -70,9 +74,11 @@ def parse_folder(root, ipath = ""):
             targetFile = Path(root + "/" + cat + "/" + newName + pathFile.suffix)
             if not targetFile.exists():
                 pathFile.replace(targetFile)
+                #shutil.copyfile(str(pathFile.absolute()), str(targetFile.absolute()))
             else:
                 targetFile = targetFile.with_name(f"{targetFile.stem}-{uuid.uuid4()}{targetFile.suffix}")
                 pathFile.replace(targetFile)
+                #shutil.copyfile(str(pathFile.absolute()), str(targetFile.absolute()))
 
             if cat == "archives":
                 shutil.unpack_archive(str(targetFile.absolute()), root + "/" + cat + "/" + targetFile.stem)
@@ -126,7 +132,9 @@ def printStatistic(rootStr):
     return
 ###############################################################
 def main():
-    root = sys.argv[1]
+    root = "."
+    if len(sys.argv) > 1:
+        root = sys.argv[1]
     path = Path(root)
 
     if not path.exists():
