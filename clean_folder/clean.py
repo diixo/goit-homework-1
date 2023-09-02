@@ -39,7 +39,6 @@ def normalize(name):
     return rename
 ###########################################################
 def parse_folder(root, ipath = ""):
-
     if not Path(root).exists(): return False
 
     # check if current directory is root.
@@ -134,8 +133,7 @@ def main():
 
     parse_folder(root)
     printStatistic(root)
-
-    return "All Ok"
+    return "Ok"
 ###############################################################
 if __name__ == "__main__":
     print(main())
