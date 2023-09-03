@@ -53,9 +53,9 @@ def parse_folder(root, ipath = None):
             if ipath == None:
                 if i.name.lower() in CATEGORIES.keys():
                     continue
-            else:
-                folders.append(i.name)
-                empties = False
+
+            folders.append(i.name)
+            empties = False
         
         elif i.is_file():
             pathFile = Path(absPath + i.name)
