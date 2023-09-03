@@ -10,7 +10,7 @@ from pathlib import Path
 ##########################################################
 img_f = {'.jpeg', '.png', '.jpg', '.svg', ".bmp", ".ico"}
 mov_f = {'.avi', '.mp4', '.mov', '.mkv', ".webm", ".wmv", ".flv"}
-doc_f = {'.doc', '.docx', '.txt', '.pdf', '.xlsx', '.pptx', ".ini", ".cmd", ".ppt", ".xml", ".msg", ".cpp", ".hpp", ".py"}
+doc_f = {'.doc', '.docx', '.txt', '.pdf', '.xlsx', '.pptx', ".ini", ".cmd", ".ppt", ".xml", ".msg", ".cpp", ".hpp", ".py", ".md"}
 mus_f = {'.mp3', '.ogg', '.wav', '.amr', ".aiff"}
 arch_f = {'.zip', '.tar'}
 
@@ -26,11 +26,11 @@ for c, t in zip(CYRILLIC_SYMBOLS, TRANSLATION):
     TRANS[ord(c.upper())] = t.upper()
 
 ###########################################################
-def getCategory(pathFile):              # (string fileName)
+def getCategory(suffix: str):
     for cat, exts in CATEGORIES.items():
-        if pathFile.suffix.lower() in exts:
-            return cat, True            #(string, Bool)
-    return "others", False               #(string, Bool)
+        if suffix in exts:
+            return cat, True
+    return "others", False
 
 ###########################################################
 def normalize(name):
@@ -59,24 +59,24 @@ def parse_folder(root, ipath = None):
         
         elif i.is_file():
             pathFile = Path(absPath + i.name)
-            cat, success = getCategory(pathFile)  #(string, Bool)
+            suffix = pathFile.suffix.lower()
+            cat, success = getCategory(suffix)
             # if success:
             # # for any category:
             newName = normalize(pathFile.stem)
-            #print(newName)
 
             # prepare target folder for category
             targetDir = Path(root + "/" + cat)
-            #print(targetDir.absolute())
+
             if not targetDir.exists():
                 targetDir.mkdir()
 
-            targetFile = Path(root + "/" + cat + "/" + newName + pathFile.suffix)
+            targetFile = Path(root + "/" + cat + "/" + newName + suffix)
             if not targetFile.exists():
                 pathFile.replace(targetFile)
                 #shutil.copyfile(str(pathFile.absolute()), str(targetFile.absolute()))
             else:
-                targetFile = targetFile.with_name(f"{targetFile.stem}-{uuid.uuid4()}{targetFile.suffix}")
+                targetFile = targetFile.with_name(f"{targetFile.stem}-{uuid.uuid4()}{suffix}")
                 pathFile.replace(targetFile)
                 #shutil.copyfile(str(pathFile.absolute()), str(targetFile.absolute()))
 
@@ -101,21 +101,21 @@ def parse_folder(root, ipath = None):
     return empties
 
 #############################################################
-def printStatistic(rootStr):
+def allStatistic(root: str):
     global CATEGORIES
-    cat_amount = dict() # cat_amount[category] = files-count
+    cat_files_all = dict()
 
     # try to traverse each directory-category:
     for cat, exts in CATEGORIES.items():
-        dirCat = Path(rootStr + "/" + cat)
+        dirCat = Path(root + "/" + cat)
 
         if dirCat.exists():
-            ext = set()     # known extentions
-            uext = set()    # unknown extentions
+            ext = set()                     # known extentions
+            uext = set()                    # unknown extentions
             for item in dirCat.iterdir():
                 if(item.is_file()):
-                    print("[{}]: {}".format(cat, item.name))
-                    cat_amount[cat] = cat_amount.get(cat, 0) + 1
+                    print(f"[{cat}]: {item.name}")
+                    cat_files_all[cat] = cat_files_all.get(cat, 0) + 1
 
                     if item.suffix in CATEGORIES[cat]:
                         ext.add(item.suffix)
@@ -124,12 +124,12 @@ def printStatistic(rootStr):
             
             # category [others] has empty extentions dictionary
             if len(CATEGORIES[cat]) > 0:    # check, if category is any category, except [others]
-                print("[*{}*].extentions:".format(cat), ext)
+                if len(ext)>0: print(f"[*{cat}*].extentions: {ext}")
             else:                           # [others] category
-                print("[*{}*].extentions:".format(cat), uext)
+                if len(uext)>0: print(f"[*{cat}*].extentions: {uext}")
 
-    print("----------------------\n", cat_amount)
-    return
+    if cat_files_all: print("----------------------\n", cat_files_all)
+
 ###############################################################
 def main():
     root = "."
@@ -138,10 +138,10 @@ def main():
     path = Path(root)
 
     if not path.exists():
-        return f"Folder with path {root} dos`n exists."
+        return f"Folder with path {root} doesn`t exists."
 
     parse_folder(root)
-    printStatistic(root)
+    allStatistic(root)
     return "Ok"
 ###############################################################
 if __name__ == "__main__":
